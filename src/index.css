@@ -34,15 +34,21 @@ code {
 button#submit {
     display: block;
 }
-.existing:after {
+span.delete {
+  /* float: left; */
+  display: inline-block;
+}
+span.delete:after {
   content: "x";
-  position: absolute;
+  /* position: absolute; */
   left: 524px;
   color: red;
   font-weight: bold;
   cursor: pointer;
+  /* top: -20px; */
+  margin-left: 5px;
 }
-
 .existing {
-  position: relative;
+  /* position: relative; */
+  display: inline-block;
 }

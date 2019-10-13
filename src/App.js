@@ -22,6 +22,7 @@ export default class App extends Component {
       refresh_call: (Cookies.get("refresh_call")) ? Cookies.get("refresh_call") : "",
       item_urls: "",
       updated_fbitems: "",
+      deleted_items: "",
       first_call: (Cookies.get("first_call")) ? Cookies.get("first_call") : "false",
     }
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -31,6 +32,7 @@ export default class App extends Component {
     this.fetchItems = this.fetchItems.bind(this);
     this.fetchAuthCode = this.fetchAuthCode.bind(this);
     this.matchItems = this.matchItems.bind(this);
+    this.deleteItem = this.deleteItem.bind(this);
 
   }
 
@@ -69,7 +71,6 @@ export default class App extends Component {
           window.location = "https://my.freshbooks.com/service/auth/oauth/authorize?client_id=4e32d45b40edc5f9e9d4ba820062635a35d6546b76ffea388cd00775ba3ca9df&response_type=code&redirect_uri=https://www.localhost:3000";
         }
       )
-
     }
     else if (this.state.first_call == "true" && this.state.auth_code == "") {
       this.fetchAuthCode()
@@ -139,16 +140,16 @@ export default class App extends Component {
           else if (responseJson.error) {
             this.setState({
               grant_type: "refresh_token",
-            })
-            // console.log(this.state.grant_type)
-            this.freshRefresh()
+            },
+              () => this.freshRefresh()
+            )
           }
-          else {
-            this.setState({
-              auth_code: ""
-            })
-            window.location.reload(true)
-          }
+          // else {
+          //   this.setState({
+          //     auth_code: ""
+          //   })
+          //   window.location.reload(true)
+          // }
         })
       })
     } else {
@@ -244,7 +245,6 @@ export default class App extends Component {
 
   matchItems = () => {
     console.log(this.state.fb_items)
-
   }
 
   handleSubmit = (e) => {
@@ -317,7 +317,6 @@ export default class App extends Component {
 
   }
   newItem = () => {
-
     this.setState(prevState => {
       return {
         items: [
@@ -334,7 +333,6 @@ export default class App extends Component {
   }
 
   handleChange = (event) => {
-
     const index = event.target.id;
     const items = this.state.items[index];
     items[event.target.name] = event.target.value;
@@ -348,27 +346,38 @@ export default class App extends Component {
     );
   }
 
-
-
-  // handleNewChange = (event) => {
-  //   const index = event.target.id;
-  //   const newitems = this.state.new_items[index];
-  //  newitems[event.target.name] = event.target.value;
-
-  //   const name = event.target.name;
-  //   const value = event.target.value;
-  //       this.setState({
-  //         [newitems]: newitems
-  //   },
-  //   () => this.handleMapping()
-  //   );
-  // }
+  deleteItem = (event) => {
+    const item = event.target;
+    var target = item.previousSibling;
+    var id = target.id;
+    const selected_items = this.state.items[id];
+    const array = [...this.state.items]
+    var index = array.indexOf(selected_items)
+    if (index !== -1) {
+      array.splice(index, 1);
+      this.setState({
+        items: array,
+      },
+        () => this.handleMapping()
+      );
+      this.setState(prevState => {
+        return {
+          deleted_items: [
+            ...prevState.deleted_items,
+              selected_items
+          ]
+        }
+      }
+    )
+  }
+  }
 
   handleMapping = () => {
     console.log(this.state.items)
-    console.log(this.state.new_items)
+    console.log(this.state.deleted_items)
 
   }
+
   render() {
     console.log(typeof this.state.items)
     return (
@@ -379,71 +388,36 @@ export default class App extends Component {
 
               ?
               this.state.items.map((item, index) =>
-                <div index={index} className="existing">
-                  <input type="text"
-                    name="item_name"
-                    id={index}
-                    value={item["item_name"]}
-                    ref={(input) => this.query = input}
-                    onChange={this.handleChange}
-                    placeholder={item["item_name"]} />
-                  <input type="text"
-                    name="item_desc"
-                    id={index}
-                    value={item["item_desc"]}
-                    ref={(input) => this.query = input}
-                    onChange={this.handleChange}
-                    placeholder={item["item_desc"]} />
+                <div className="itemContainer" id={index}>
+                  <div index={index} id={index} className="existing">
+                    <input type="text"
+                      name="item_name"
+                      id={index}
+                      value={item["item_name"]}
+                      ref={(input) => this.query = input}
+                      onChange={this.handleChange}
+                      placeholder={item["item_name"]} />
+                    <input type="text"
+                      name="item_desc"
+                      id={index}
+                      value={item["item_desc"]}
+                      ref={(input) => this.query = input}
+                      onChange={this.handleChange}
+                      placeholder={item["item_desc"]} />
 
-                  <input type="text"
-                    name="item_quantity"
-                    id={index}
-                    value={item["item_quantity"]}
-                    ref={(input) => this.query = input}
-                    onChange={this.handleChange}
-                    placeholder={item["item_quantity"]} />
+                    <input type="text"
+                      name="item_quantity"
+                      id={index}
+                      value={item["item_quantity"]}
+                      ref={(input) => this.query = input}
+                      onChange={this.handleChange}
+                      placeholder={item["item_quantity"]} />
+                  </div>
+                  <span className="delete" onClick={this.deleteItem}></span>
                 </div>
               )
               : ""
-
           }
-
-          {/* {
-
-            (typeof this.state.new_items === 'object' && this.state.new_items !== null)
-
-              ?
-              this.state.new_items.map((item, index) =>
-                <div index={index} className="newItem">
-                  <input type="text"
-                    name="item_name"
-                    id={index}
-                    value={item.item_name}
-                    ref={(input) => this.query = input}
-                    onChange={this.handleNewChange}
-                    placeholder={item.item_name} />
-                  <input type="text"
-                    name="item_desc"
-                    id={index}
-                    value={item.item_desc}
-                    ref={(input) => this.query = input}
-                    onChange={this.handleNewChange}
-                    placeholder={item.item_desc} />
-
-                  <input type="text"
-                    name="item_quantity"
-                    id={index}
-                    value={item.item_quantity}
-                    ref={(input) => this.query = input}
-                    onChange={this.handleNewChange}
-                    placeholder={item.item_quantity} />
-
-                </div>
-
-              )
-              : ""
-
-          } */}
           <div class="plus" onClick={this.newItem}></div>
           <button type="submit" id="submit" className="search-button" onClick={this.handleSubmit}>SAVE</button>
         </form>
