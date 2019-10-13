@@ -264,7 +264,7 @@ export default class App extends Component {
     });
 
     result.forEach(item => {
-      var matchingObj = result1.filter(obj => obj.item_name === item.name)[0];
+      var matchingObj = result1.filter(obj => obj.item_name === item.name);
       item.qty = matchingObj.item_quantity;
       item.description = matchingObj.item_desc;
     });
@@ -289,8 +289,30 @@ export default class App extends Component {
           alert("items saved!")
         }
         console.log(response)
-      })
 
+      })
+if (this.state.deleted_items) {
+      fetch("http://localhost:5000/api/items", {
+        method: "DELETE",
+        mode: "cors",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.state.deleted_items)
+      })
+        .then((response) => {
+          if (response.status == 200) {
+            alert("items deleted!")
+            this.setState({
+              deleted_items: ""
+            })
+          }
+          console.log(response)
+          response.json().then((responseJson) => {
+            console.log(responseJson)
+          })
+        })
+      }
     Promise.all(result.map(u =>
       fetch('https://api.freshbooks.com/accounting/account/3xkx82/items/items/' + u["id"], {
         method: "PUT",
