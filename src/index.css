@@ -11,3 +11,38 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+.newItem:last-child:after {
+  content: "+";cursor: pointer;
+}
+
+/* .newItem {
+    display: inline-block;
+} */
+
+.plus:before {
+  content: '+';
+  display: inline-block;
+  font-weight: 600;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.plus:last-child {
+  display: inline-block;
+}
+
+button#submit {
+    display: block;
+}
+.existing:after {
+  content: "x";
+  position: absolute;
+  left: 524px;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.existing {
+  position: relative;
+}
